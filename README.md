@@ -12,18 +12,7 @@ Copy the example environment file and configure your credentials:
 cp .env.example .env
 ```
 
-Then edit `.env` and provide API credentials for both the source and destination Frontegg accounts:
-```
-# Source Account (Account 1)
-BASE_URL_1="https://api.frontegg.com"       # EU region (change to us/ca/au as needed)
-CLIENT_ID_1="8898f789-..."                  # Source account Client ID
-API_KEY_1="a9204f0d-..."                    # Source account API Key
-
-# Destination Account (Account 2)
-BASE_URL_2="https://api.us.frontegg.com"    # US region (change to eu/ca/au as needed)
-CLIENT_ID_2="ddc2006d-..."                  # Destination account Client ID
-API_KEY_2="3339124b-cb5c-..."               # Destination account API Key
-```
+Then edit `.env` and provide API credentials for both the source and destination Frontegg accounts
 
 **Available regions:**
 - EU: `https://api.frontegg.com`
@@ -32,7 +21,7 @@ API_KEY_2="3339124b-cb5c-..."               # Destination account API Key
 - AU: `https://api.au.frontegg.com`
 
 **3. User Data Migration (Optional):**
-> **Note:** If you need to migrate users between accounts, please contact [Frontegg Support](https://support.frontegg.com) to obtain the necessary user data exports. They will provide you with the required CSV files that should be placed in the `account_data` directory.
+> **Note:** If you need to migrate users between accounts, please contact Frontegg Support to obtain the necessary user data exports. They will provide you with the required CSV files that should be placed in the `account_data` directory.
 
 
 ## Running the Script
