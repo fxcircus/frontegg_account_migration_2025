@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+log.txt
+
+# Backups and archives
+*.zip
+*.tar.gz
+*.rar
+backup/
+*backup*
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Test and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Project specific
+account_data/
+user_data/
+migration_data/
+OLD/
+"Old (ignore)/"
+NEW2/
+
+.claude
+
+adding_new_stuff
+
+# Database queries file (contains sensitive queries)
+db_queries.md
+
+#logs
+utility/log.txt
+log.txt
