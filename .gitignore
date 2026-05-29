@@ -14,6 +14,8 @@ venv.bak/
 .env
 .env.*
 *.env
+# but DO track the example file (placeholders only, no real secrets)
+!.env.example
 
 # IDE
 .vscode/
@@ -65,8 +67,10 @@ NEW2/
 
 adding_new_stuff
 
-# Database queries file (contains sensitive queries)
 db_queries.md
+internal_tools/
+client_exports/
+account_data/
 
 #logs
 utility/log.txt
@@ -74,3 +78,4 @@ log.txt
 
 # Project instructions
 CLAUDE.md
+

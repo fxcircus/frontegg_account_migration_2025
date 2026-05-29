@@ -128,7 +128,7 @@ def main():
         if MIGRATE_PREHOOKS:
             log_section("Prehooks Migration")
             migrate_webhook_configuration(frontegg_client_1, frontegg_client_2)
-        
+
         if MIGRATE_ALLOWED_ORIGINS:
             log_section("Allowed Origins Migration")
             migrate_allowed_origins_configuration(frontegg_client_1, frontegg_client_2)

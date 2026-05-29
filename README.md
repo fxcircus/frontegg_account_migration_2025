@@ -81,11 +81,12 @@ DELETE_APPLICATIONS = True
 - Security Rules
 - Email Templates
 - Email Provider/Sender Configuration
-- Webhooks/Prehooks
+- Prehooks
 - Allowed Origins
 - JWT Settings (token expiration, refresh token expiration, cookie settings)
 
 **The following data DOES NOT get migrated:**
+- Webhooks (event hooks). Note: Prehooks *are* migrated; Webhooks are not.
 - Builder settings
 - Tenant settings
     - SSOs, SCIM, Hierarchies, API tokens, custom login...

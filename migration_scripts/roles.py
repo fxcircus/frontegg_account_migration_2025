@@ -82,30 +82,31 @@ def create_roles(client, roles_with_tenant, roles_without_tenant):
         roles_data_without_tenant.append(role_data)
 
     log(f"Sending array of {len(roles_data_without_tenant)} roles to create without tenantId.")
-    log_detailed_api_call("POST", endpoint, headers=headers, data=roles_data_without_tenant)
 
-    try:
-        response = make_request_with_rate_limiting('POST', endpoint, client, headers=headers, json_data=roles_data_without_tenant)
-        response_data = response.json()
-        
-        for original_role, created_role in zip(roles_without_tenant, response_data):
-            role_id_mapping[original_role["id"]] = created_role["id"]
-            log(f"Role '{original_role['name']}' created with ID: {created_role['id']}")
+    if len(roles_data_without_tenant) == 0:
+        log("No new roles to create without tenantId. Skipping API call.")
+    else:
+        log_detailed_api_call("POST", endpoint, headers=headers, data=roles_data_without_tenant)
 
-    except requests.exceptions.HTTPError as e:
-        log(f"Error creating roles without tenantId: {e}")
-        if e.response:
-            error_content = e.response.json()
-            log(f"Error response content:\n{json.dumps(error_content, indent=2)}")
-            if any("already exist" in error.lower() for error in error_content.get('errors', [])):
-                log("Some roles already exist. Skipping those.")
+        try:
+            response = make_request_with_rate_limiting('POST', endpoint, client, headers=headers, json_data=roles_data_without_tenant)
+            response_data = response.json()
+
+            for original_role, created_role in zip(roles_without_tenant, response_data):
+                role_id_mapping[original_role["id"]] = created_role["id"]
+                log(f"Role '{original_role['name']}' created with ID: {created_role['id']}")
+
+        except requests.exceptions.HTTPError as e:
+            log(f"Error creating roles without tenantId: {e}")
+            if e.response:
+                error_content = e.response.json()
+                log(f"Error response content:\n{json.dumps(error_content, indent=2)}")
+                if any("already exist" in error.lower() for error in error_content.get('errors', [])):
+                    log("Some roles already exist. Skipping those.")
+                else:
+                    raise
             else:
                 raise
-        else:
-            raise
-    except Exception as e:
-        log(f"Error creating roles without tenantId: {e}")
-        raise
 
     # Handle roles with tenantId individually
     for role in roles_with_tenant:

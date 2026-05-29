@@ -61,7 +61,7 @@ def create_users_in_destination(source_client, destination_client, migrate_user_
 
     if migrate_user_roles:
         # Get a merged list of roles instead of a tuple.
-        source_roles = get_roles(source_client, split=False)  
+        source_roles = get_roles(source_client, split=False)
         dest_roles = get_roles(destination_client, split=False)
 
         # Map destination role IDs based on matching role names
@@ -71,29 +71,64 @@ def create_users_in_destination(source_client, destination_client, migrate_user_
 
         log(f"Role ID Mapping: {role_id_mapping}")
 
-        roles_for_csv = []
+        # CHECK: Does the CSV already have roleIds from DB export?
+        csv_has_roles = 'roleIds' in df.columns and not df['roleIds'].isna().all()
 
-        for idx, row in df.iterrows():
-            email = row["email"]
-            tenant_id = row["tenantId"]
-            
-            # Fetch user ID from the source client
-            user_id = get_user_id_by_email(source_client, email, tenant_id)
+        if csv_has_roles:
+            log("✓ Found existing roleIds in CSV (from DB export) - using them directly")
+            log("✓ Skipping API calls to fetch user roles")
 
-            if user_id:
-                source_role_ids = get_user_roles(source_client, user_id, tenant_id)
-                translated_role_ids = [role_id_mapping.get(role_id) for role_id in source_role_ids if role_id_mapping.get(role_id)]
-                
-                log(f"User {email} - Translated Role IDs: {translated_role_ids}")
+            roles_for_csv = []
+            for idx, row in df.iterrows():
+                existing_role_ids = str(row.get('roleIds', ''))
 
-                roles_string = "|".join(translated_role_ids) if translated_role_ids else ""
-                roles_for_csv.append(roles_string)
-            else:
-                log(f"User ID not found for {email} in source client.")
-                roles_for_csv.append("")
+                if existing_role_ids and existing_role_ids != 'nan':
+                    # Parse pipe-separated role IDs from CSV
+                    source_role_ids = [rid.strip() for rid in existing_role_ids.split('|') if rid.strip()]
 
-        # Add the new 'roleIds' column to the DataFrame
-        df["roleIds"] = roles_for_csv
+                    # Translate from source to destination role IDs
+                    translated_role_ids = [
+                        role_id_mapping.get(role_id)
+                        for role_id in source_role_ids
+                        if role_id_mapping.get(role_id)
+                    ]
+
+                    roles_string = "|".join(translated_role_ids) if translated_role_ids else ""
+                    roles_for_csv.append(roles_string)
+
+                    email = row.get("email", "unknown")
+                    log(f"User {email} - Mapped {len(source_role_ids)} roles -> {len(translated_role_ids)} destination roles")
+                else:
+                    roles_for_csv.append("")
+
+            df["roleIds"] = roles_for_csv
+
+        else:
+            log("✓ No roleIds found in CSV - fetching from source account API")
+
+            roles_for_csv = []
+
+            for idx, row in df.iterrows():
+                email = row["email"]
+                tenant_id = row["tenantId"]
+
+                # Fetch user ID from the source client
+                user_id = get_user_id_by_email(source_client, email, tenant_id)
+
+                if user_id:
+                    source_role_ids = get_user_roles(source_client, user_id, tenant_id)
+                    translated_role_ids = [role_id_mapping.get(role_id) for role_id in source_role_ids if role_id_mapping.get(role_id)]
+
+                    log(f"User {email} - Translated Role IDs: {translated_role_ids}")
+
+                    roles_string = "|".join(translated_role_ids) if translated_role_ids else ""
+                    roles_for_csv.append(roles_string)
+                else:
+                    log(f"User ID not found for {email} in source client.")
+                    roles_for_csv.append("")
+
+            # Add the new 'roleIds' column to the DataFrame
+            df["roleIds"] = roles_for_csv
 
     # Finalize the CSV with formatted phone numbers
     csv_file_path = finalize_csv(df)

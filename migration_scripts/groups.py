@@ -26,9 +26,9 @@ def migrate_groups(frontegg_client_1, frontegg_client_2):
             description = row['description']
 
             # Skip groups where both userIds and userEmails are null
-            if not row['userIds'] and not row['userEmails']:
-                log(f"Skipping group '{name}' as both userIds and userEmails are null.")
-                continue
+            # if not row['userIds'] and not row['userEmails']:
+            #     log(f"Skipping group '{name}' as both userIds and userEmails are null.")
+            #     continue
 
             # Prepare the API request to create the group
             url = f"{frontegg_client_2.base_url}/identity/resources/groups/v1"

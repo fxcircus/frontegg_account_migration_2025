@@ -11,7 +11,8 @@ SECURITY_RULES = {
     'impossible-travel': 'Impossible Travel',
     'suspicious-ip': 'Suspicious IPs',
     'stale-users': 'Stale Users',
-    'email-reputation': 'Email Credibility Check'
+    'email-reputation': 'Email Credibility Check',
+    'country-restriction': 'Country Restrictions'
 }
 
 # Rate limit configuration
@@ -97,20 +98,21 @@ def update_security_rule(client, rule_type, rule_config):
         return None
 
 def compare_rules(source_rule, dest_rule):
-    """Compare two security rule configurations."""
+    """Compare two security rule configurations across all fields.
+
+    Ignores only server-managed metadata that always differs between accounts,
+    so any real configuration difference (country lists, failStrategy, keys,
+    thresholds, etc.) is detected and never silently skipped.
+    """
     if not source_rule or not dest_rule:
         return False
-    
-    # Compare the important fields that can be modified
-    important_fields = ['action', 'enabled', 'threshold', 'timeWindow', 'lockDuration', 'challengeType']
-    
-    for field in important_fields:
-        if field in source_rule or field in dest_rule:
-            if source_rule.get(field) != dest_rule.get(field):
-                return False
-    
-    # If all important fields match, consider them equal
-    return True
+
+    ignored_fields = {'id', 'createdAt', 'updatedAt'}
+
+    def normalize(rule):
+        return {k: v for k, v in rule.items() if k not in ignored_fields}
+
+    return normalize(source_rule) == normalize(dest_rule)
 
 def migrate_security_rules(source_client, destination_client):
     """Migrate all security rules from source to destination."""
